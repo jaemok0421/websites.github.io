@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Dots</title>
+  <meta name="description" content="连接相邻同色点，三个及以上即可消除。下落补点，闯关加时。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%233b6cf0'/%3E%3Ccircle cx='20' cy='24' r='7' fill='%23ff6b6b'/%3E%3Ccircle cx='40' cy='22' r='7' fill='%23ffd43b'/%3E%3Ccircle cx='28' cy='42' r='7' fill='%2351cf66'/%3E%3Ccircle cx='46' cy='44' r='7' fill='%23ffffff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <a class="back" href="../index.html">全部游戏</a>
+        <h1>Dots</h1>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <span class="label">剩余时间</span>
+          <span class="value" id="timer">01:00</span>
+        </div>
+        <div class="stat">
+          <span class="label">得分</span>
+          <span class="value" id="score">0</span>
+        </div>
+        <div class="stat">
+          <span class="label">关卡</span>
+          <span class="value" id="level">1</span>
+        </div>
+        <div class="stat">
+          <span class="label">颜色</span>
+          <span class="value" id="color-count">3</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="board-card">
+        <div class="quota">
+          <div class="quota-row">
+            <span>本关进度</span>
+            <span id="quota-label">0 / 25</span>
+          </div>
+          <div class="bar" aria-hidden="true"><i id="quota-bar"></i></div>
+        </div>
+        <div class="board-wrap" id="board-wrap">
+          <div class="board" id="board" role="grid" aria-label="色点棋盘"></div>
+          <svg class="lines" id="lines" viewBox="0 0 8 8" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <div class="section">
+          <h2>玩法</h2>
+          <p class="hint">按住色点并拖向八个方向中相邻的同色点。连到 3 个或以上后松手即可消除，每个点得 1 分。上方的点会下落，顶部补上新点。</p>
+        </div>
+        <div class="section">
+          <h2>闯关</h2>
+          <p class="hint">攒够本关分数后棋盘保持不变，进入下一关并增加时间。后续关卡会提高通关分数，并在部分关卡加入新颜色。</p>
+        </div>
+        <div class="section">
+          <h2>本关</h2>
+          <ul class="facts" id="facts">
+            <li>下一关 +<span id="fact-time">12</span> 秒</li>
+            <li>当前 <span id="fact-colors">3</span> 种颜色</li>
+          </ul>
+        </div>
+        <div class="section">
+          <div class="actions">
+            <button class="btn primary" id="btn-new" type="button">新游戏</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <div class="overlay show" id="start-overlay">
+    <div class="modal">
+      <h3>Dots</h3>
+      <p>连接相邻同色点，三个及以上消除得分。在时间耗尽前尽可能闯过更多关卡。</p>
+      <div class="modal-actions">
+        <button class="btn primary" id="btn-start" type="button">开始游戏</button>
+      </div>
+    </div>
+  </div>
+
+  <dialog id="over-dialog">
+    <form class="modal" method="dialog">
+      <h3>时间到</h3>
+      <p>本局到达第 <strong id="over-level">1</strong> 关，得分</p>
+      <p class="win-time" id="over-score">0</p>
+      <div class="modal-actions">
+        <button class="btn ghost" value="cancel" type="submit">查看棋盘</button>
+        <button class="btn primary" id="btn-retry" type="button">再来一局</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

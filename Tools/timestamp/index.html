@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>时间戳转换</title>
+  <meta name="description" content="Unix 时间戳与日期时间互转。">
+  <link rel="stylesheet" href="../css/tool.css">
+</head>
+<body>
+  <div class="page">
+    <nav class="crumb">
+      <a href="../../index.html">首页</a><span>/</span>
+      <a href="../index.html">网页工具箱</a><span>/</span>
+      <span>时间戳转换</span>
+    </nav>
+    <header class="tool-header">
+      <h1>时间戳转换</h1>
+      <p>支持秒 / 毫秒时间戳，与本地日期时间互相转换。</p>
+    </header>
+    <main class="panel stack">
+      <div class="stats">
+        <div class="stat"><span>当前秒级</span><strong id="now-s">-</strong></div>
+        <div class="stat"><span>当前毫秒</span><strong id="now-ms">-</strong></div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="ts">时间戳</label>
+          <input id="ts" type="text" placeholder="例如 1710000000">
+        </div>
+        <div class="field">
+          <label for="unit">单位</label>
+          <select id="unit">
+            <option value="s">秒</option>
+            <option value="ms">毫秒</option>
+          </select>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="to-date" type="button">转为日期</button>
+        <button class="btn ghost" id="use-now" type="button">填入当前</button>
+      </div>
+      <div class="field">
+        <label for="datetime">日期时间（本地）</label>
+        <input id="datetime" type="datetime-local" step="1">
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="to-ts" type="button">转为时间戳</button>
+        <button class="btn ghost" id="copy-ts" type="button">复制时间戳</button>
+      </div>
+      <div class="field">
+        <label>可读结果</label>
+        <div class="output" id="readable">-</div>
+      </div>
+      <p class="status" id="status"></p>
+    </main>
+  </div>
+  <script>
+    const tsEl = document.getElementById("ts");
+    const unitEl = document.getElementById("unit");
+    const datetimeEl = document.getElementById("datetime");
+    const readable = document.getElementById("readable");
+    const statusEl = document.getElementById("status");
+    const nowS = document.getElementById("now-s");
+    const nowMs = document.getElementById("now-ms");
+
+    function pad(n) {
+      return String(n).padStart(2, "0");
+    }
+
+    function toLocalInput(date) {
+      return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate())
+        + "T" + pad(date.getHours()) + ":" + pad(date.getMinutes()) + ":" + pad(date.getSeconds());
+    }
+
+    function tick() {
+      const n = Date.now();
+      nowS.textContent = String(Math.floor(n / 1000));
+      nowMs.textContent = String(n);
+    }
+
+    function setStatus(msg, ok) {
+      statusEl.textContent = msg;
+      statusEl.className = "status " + (ok ? "ok" : "error");
+    }
+
+    function detectMs(value) {
+      return Math.abs(value) >= 1e12;
+    }
+
+    document.getElementById("to-date").onclick = () => {
+      const raw = tsEl.value.trim();
+      if (!/^-?\d+$/.test(raw)) {
+        setStatus("请输入整数时间戳。", false);
+        return;
+      }
+      let value = Number(raw);
+      const unit = unitEl.value;
+      if (unit === "s") value *= 1000;
+      else if (unit === "ms" && !detectMs(value) && String(Math.abs(Number(raw))).length <= 10) {
+        // keep as ms if user insists
+      }
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        setStatus("时间戳无效。", false);
+        return;
+      }
+      datetimeEl.value = toLocalInput(date);
+      readable.textContent = date.toLocaleString("zh-CN", { hour12: false }) + "\nISO: " + date.toISOString();
+      setStatus("已转换为日期时间。", true);
+    };
+
+    document.getElementById("to-ts").onclick = () => {
+      if (!datetimeEl.value) {
+        setStatus("请先选择日期时间。", false);
+        return;
+      }
+      const date = new Date(datetimeEl.value);
+      if (Number.isNaN(date.getTime())) {
+        setStatus("日期时间无效。", false);
+        return;
+      }
+      const ms = date.getTime();
+      tsEl.value = unitEl.value === "s" ? String(Math.floor(ms / 1000)) : String(ms);
+      readable.textContent = date.toLocaleString("zh-CN", { hour12: false }) + "\nISO: " + date.toISOString();
+      setStatus("已转换为时间戳。", true);
+    };
+
+    document.getElementById("use-now").onclick = () => {
+      const n = Date.now();
+      tsEl.value = unitEl.value === "s" ? String(Math.floor(n / 1000)) : String(n);
+      datetimeEl.value = toLocalInput(new Date(n));
+      readable.textContent = new Date(n).toLocaleString("zh-CN", { hour12: false });
+      setStatus("已填入当前时间。", true);
+    };
+
+    document.getElementById("copy-ts").onclick = async () => {
+      if (!tsEl.value) return;
+      try {
+        await navigator.clipboard.writeText(tsEl.value);
+        setStatus("已复制时间戳。", true);
+      } catch {
+        setStatus("复制失败。", false);
+      }
+    };
+
+    tick();
+    setInterval(tick, 1000);
+    document.getElementById("use-now").click();
+  </script>
+</body>
+</html>

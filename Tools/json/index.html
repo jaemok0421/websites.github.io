@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>JSON 格式化</title>
+  <meta name="description" content="格式化、压缩与校验 JSON。">
+  <link rel="stylesheet" href="../css/tool.css">
+</head>
+<body>
+  <div class="page">
+    <nav class="crumb">
+      <a href="../../index.html">首页</a><span>/</span>
+      <a href="../index.html">网页工具箱</a><span>/</span>
+      <span>JSON 格式化</span>
+    </nav>
+    <header class="tool-header">
+      <h1>JSON 格式化</h1>
+      <p>美化、压缩并校验 JSON，错误位置会尽量提示。</p>
+    </header>
+    <main class="panel stack">
+      <div class="field">
+        <label for="input">JSON 输入</label>
+        <textarea id="input" placeholder='{"hello":"world"}'></textarea>
+      </div>
+      <div class="actions">
+        <button class="btn" id="format" type="button">格式化</button>
+        <button class="btn secondary" id="minify" type="button">压缩</button>
+        <button class="btn ghost" id="validate" type="button">仅校验</button>
+        <button class="btn ghost" id="clear" type="button">清空</button>
+      </div>
+      <div class="field">
+        <label for="output">输出</label>
+        <textarea id="output" readonly></textarea>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="copy" type="button">复制输出</button>
+      </div>
+      <p class="status" id="status"></p>
+    </main>
+  </div>
+  <script>
+    const input = document.getElementById("input");
+    const output = document.getElementById("output");
+    const statusEl = document.getElementById("status");
+
+    function parse() {
+      return JSON.parse(input.value);
+    }
+
+    function setStatus(msg, ok) {
+      statusEl.textContent = msg;
+      statusEl.className = "status " + (ok ? "ok" : "error");
+    }
+
+    function explain(err) {
+      const m = String(err.message || err);
+      const pos = m.match(/position\s+(\d+)/i);
+      if (pos) return "JSON 无效（约第 " + pos[1] + " 个字符）：" + m;
+      return "JSON 无效：" + m;
+    }
+
+    document.getElementById("format").onclick = () => {
+      try {
+        output.value = JSON.stringify(parse(), null, 2);
+        setStatus("格式化成功。", true);
+      } catch (e) {
+        setStatus(explain(e), false);
+      }
+    };
+
+    document.getElementById("minify").onclick = () => {
+      try {
+        output.value = JSON.stringify(parse());
+        setStatus("压缩成功。", true);
+      } catch (e) {
+        setStatus(explain(e), false);
+      }
+    };
+
+    document.getElementById("validate").onclick = () => {
+      try {
+        parse();
+        setStatus("校验通过：是合法 JSON。", true);
+      } catch (e) {
+        setStatus(explain(e), false);
+      }
+    };
+
+    document.getElementById("clear").onclick = () => {
+      input.value = "";
+      output.value = "";
+      statusEl.textContent = "";
+    };
+
+    document.getElementById("copy").onclick = async () => {
+      if (!output.value) return;
+      try {
+        await navigator.clipboard.writeText(output.value);
+        setStatus("已复制输出。", true);
+      } catch {
+        setStatus("复制失败。", false);
+      }
+    };
+  </script>
+</body>
+</html>

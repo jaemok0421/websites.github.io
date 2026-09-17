@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>数独</title>
+  <meta name="description" content="可在浏览器中游玩的数独游戏，支持按难度随机生成以及关卡导入导出。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%233b6cf0'/%3E%3Cpath d='M12 12h40v40H12z' fill='none' stroke='white' stroke-width='3'/%3E%3Cpath d='M12 25.3h40M12 38.7h40M25.3 12v40M38.7 12v40' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <a class="back" href="../index.html">全部游戏</a>
+        <h1>数独</h1>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <span class="label">用时</span>
+          <span class="value" id="timer">00:00</span>
+        </div>
+        <div class="stat">
+          <span class="label">难度</span>
+          <span class="value" id="difficulty-label">中等</span>
+        </div>
+        <div class="stat">
+          <span class="label">已知格</span>
+          <span class="value" id="clue-label">0</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="board-card">
+        <div class="board" id="board" role="grid" aria-label="数独棋盘"></div>
+      </section>
+
+      <aside class="panel">
+        <div class="section">
+          <h2>难度</h2>
+          <div class="chips" id="difficulty-chips"></div>
+        </div>
+
+        <div class="section">
+          <h2>关卡</h2>
+          <div class="actions">
+            <button class="btn primary" id="btn-new" type="button">新游戏</button>
+            <button class="btn ghost" id="btn-restart" type="button">重新开始</button>
+            <button class="btn ghost" id="btn-import" type="button">导入关卡</button>
+            <button class="btn ghost" id="btn-export" type="button">导出关卡</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>填入</h2>
+          <div class="pad" id="pad"></div>
+        </div>
+
+        <div class="section">
+          <h2>工具</h2>
+          <div class="tools">
+            <button class="btn ghost" id="btn-notes" type="button">笔记</button>
+            <button class="btn ghost" id="btn-undo" type="button">撤销</button>
+            <button class="btn ghost" id="btn-hint" type="button">提示</button>
+            <button class="btn ghost" id="btn-check" type="button">检查</button>
+          </div>
+          <p class="hint">方向键移动格子，数字键填入，N 切换笔记，Delete 擦除，Ctrl+Z 撤销。</p>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <div class="overlay" id="loading"><div class="loader">正在生成关卡…</div></div>
+
+  <dialog id="import-dialog">
+    <form class="modal" method="dialog">
+      <h3>导入关卡</h3>
+      <p>支持本游戏导出的 JSON，或 81 个字符的题目（空格用 0 或 .）。也可直接选择文件。</p>
+      <div class="file-row">
+        <input id="import-file" type="file" accept=".json,.txt,.sdk,.sudoku,text/plain,application/json">
+      </div>
+      <textarea id="import-text" placeholder="在此粘贴题目或 JSON"></textarea>
+      <div class="modal-actions">
+        <button class="btn ghost" value="cancel" type="submit">取消</button>
+        <button class="btn primary" id="btn-import-confirm" type="button">导入</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="export-dialog">
+    <form class="modal" method="dialog">
+      <h3>导出关卡</h3>
+      <p>可下载完整 JSON（含题目、解答和当前进度），或只复制 81 位题目字符串。</p>
+      <textarea class="export-preview" id="export-preview" readonly></textarea>
+      <div class="modal-actions">
+        <button class="btn ghost" value="cancel" type="submit">关闭</button>
+        <button class="btn ghost" id="btn-copy-puzzle" type="button">复制题目</button>
+        <button class="btn ghost" id="btn-copy-json" type="button">复制 JSON</button>
+        <button class="btn primary" id="btn-download" type="button">下载 JSON</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="win-dialog">
+    <form class="modal" method="dialog">
+      <h3>恭喜完成</h3>
+      <p>本局难度 <strong id="win-difficulty">中等</strong>，用时</p>
+      <p class="win-time" id="win-time">00:00</p>
+      <div class="modal-actions">
+        <button class="btn ghost" value="cancel" type="submit">继续查看</button>
+        <button class="btn primary" id="btn-win-new" type="button">再来一局</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="js/engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

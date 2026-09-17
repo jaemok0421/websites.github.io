@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Base64 编解码</title>
+  <meta name="description" content="文本与 Base64 互转，支持 UTF-8。">
+  <link rel="stylesheet" href="../css/tool.css">
+</head>
+<body>
+  <div class="page">
+    <nav class="crumb">
+      <a href="../../index.html">首页</a><span>/</span>
+      <a href="../index.html">网页工具箱</a><span>/</span>
+      <span>Base64 编解码</span>
+    </nav>
+    <header class="tool-header">
+      <h1>Base64 编解码</h1>
+      <p>支持 UTF-8 文本，编解码均在本地完成。</p>
+    </header>
+    <main class="panel stack">
+      <div class="field">
+        <label for="input">输入</label>
+        <textarea id="input" placeholder="在此粘贴文本或 Base64…"></textarea>
+      </div>
+      <div class="actions">
+        <button class="btn" id="encode" type="button">编码</button>
+        <button class="btn secondary" id="decode" type="button">解码</button>
+        <button class="btn ghost" id="swap" type="button">交换</button>
+        <button class="btn ghost" id="clear" type="button">清空</button>
+      </div>
+      <div class="field">
+        <label for="output">输出</label>
+        <textarea id="output" readonly></textarea>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="copy" type="button">复制输出</button>
+      </div>
+      <p class="status" id="status"></p>
+    </main>
+  </div>
+  <script>
+    const input = document.getElementById("input");
+    const output = document.getElementById("output");
+    const statusEl = document.getElementById("status");
+
+    function toBase64(text) {
+      const bytes = new TextEncoder().encode(text);
+      let binary = "";
+      bytes.forEach((b) => { binary += String.fromCharCode(b); });
+      return btoa(binary);
+    }
+
+    function fromBase64(text) {
+      const binary = atob(text.replace(/\s+/g, ""));
+      const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    }
+
+    function setStatus(msg, ok) {
+      statusEl.textContent = msg;
+      statusEl.className = "status " + (ok ? "ok" : "error");
+    }
+
+    document.getElementById("encode").onclick = () => {
+      try {
+        output.value = toBase64(input.value);
+        setStatus("编码完成。", true);
+      } catch (e) {
+        setStatus("编码失败：" + e.message, false);
+      }
+    };
+
+    document.getElementById("decode").onclick = () => {
+      try {
+        output.value = fromBase64(input.value);
+        setStatus("解码完成。", true);
+      } catch {
+        setStatus("解码失败：不是合法的 Base64。", false);
+      }
+    };
+
+    document.getElementById("swap").onclick = () => {
+      const a = input.value;
+      input.value = output.value;
+      output.value = a;
+    };
+
+    document.getElementById("clear").onclick = () => {
+      input.value = "";
+      output.value = "";
+      statusEl.textContent = "";
+    };
+
+    document.getElementById("copy").onclick = async () => {
+      if (!output.value) return;
+      try {
+        await navigator.clipboard.writeText(output.value);
+        setStatus("已复制输出。", true);
+      } catch {
+        setStatus("复制失败。", false);
+      }
+    };
+  </script>
+</body>
+</html>

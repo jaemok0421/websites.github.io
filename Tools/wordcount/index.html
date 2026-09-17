@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>字数统计</title>
+  <meta name="description" content="统计字符、单词、行数与中文字数。">
+  <link rel="stylesheet" href="../css/tool.css">
+</head>
+<body>
+  <div class="page">
+    <nav class="crumb">
+      <a href="../../index.html">首页</a><span>/</span>
+      <a href="../index.html">网页工具箱</a><span>/</span>
+      <span>字数统计</span>
+    </nav>
+    <header class="tool-header">
+      <h1>字数统计</h1>
+      <p>输入文本后即时统计字符、词数与行数。</p>
+    </header>
+    <main class="panel stack">
+      <div class="field">
+        <label for="input">文本</label>
+        <textarea id="input" placeholder="在此粘贴或输入文本…"></textarea>
+      </div>
+      <div class="stats" id="stats">
+        <div class="stat"><span>字符（含空格）</span><strong id="chars">0</strong></div>
+        <div class="stat"><span>字符（不含空格）</span><strong id="chars-ns">0</strong></div>
+        <div class="stat"><span>中文字符</span><strong id="cjk">0</strong></div>
+        <div class="stat"><span>单词</span><strong id="words">0</strong></div>
+        <div class="stat"><span>行数</span><strong id="lines">0</strong></div>
+        <div class="stat"><span>段落</span><strong id="paras">0</strong></div>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="clear" type="button">清空</button>
+      </div>
+    </main>
+  </div>
+  <script>
+    const input = document.getElementById("input");
+
+    function count() {
+      const text = input.value;
+      const chars = text.length;
+      const charsNs = text.replace(/\s/g, "").length;
+      const cjk = (text.match(/[\u4e00-\u9fff]/g) || []).length;
+      const words = (text.trim().match(/[A-Za-z0-9]+|[\u4e00-\u9fff]/g) || []).length;
+      const lines = text === "" ? 0 : text.split(/\r\n|\r|\n/).length;
+      const paras = text.trim() === "" ? 0 : text.trim().split(/\n\s*\n/).length;
+      document.getElementById("chars").textContent = chars;
+      document.getElementById("chars-ns").textContent = charsNs;
+      document.getElementById("cjk").textContent = cjk;
+      document.getElementById("words").textContent = words;
+      document.getElementById("lines").textContent = lines;
+      document.getElementById("paras").textContent = paras;
+    }
+
+    input.addEventListener("input", count);
+    document.getElementById("clear").onclick = () => {
+      input.value = "";
+      count();
+      input.focus();
+    };
+    count();
+  </script>
+</body>
+</html>

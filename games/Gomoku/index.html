@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>五子棋</title>
+  <meta name="description" content="经典十五路五子棋，支持本地双人和三级难度电脑对战。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23d9a85f'/%3E%3Cpath d='M10 18h44M10 32h44M10 46h44M18 10v44M32 10v44M46 10v44' stroke='%236b4521' stroke-width='2'/%3E%3Ccircle cx='18' cy='32' r='7' fill='%231b2434'/%3E%3Ccircle cx='46' cy='32' r='7' fill='%23fff' stroke='%23ccd1dc'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <a class="back" href="../index.html">全部游戏</a>
+        <h1>五子棋</h1>
+      </div>
+      <div class="turn-card" id="turn-card" aria-live="polite">
+        <span class="stone black" id="turn-stone" aria-hidden="true"></span>
+        <div>
+          <span class="label">当前回合</span>
+          <strong id="turn-label">黑方</strong>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="board-card">
+        <div class="board-shell">
+          <canvas id="board" width="720" height="720" aria-label="十五路五子棋棋盘"></canvas>
+          <div class="thinking" id="thinking">电脑思考中<span>…</span></div>
+        </div>
+        <p class="board-tip" id="board-tip">黑方先行，率先连成五子者获胜</p>
+      </section>
+
+      <aside class="panel">
+        <section class="section">
+          <h2>对战模式</h2>
+          <div class="segmented" id="mode-select">
+            <button class="active" type="button" data-mode="ai">对抗电脑</button>
+            <button type="button" data-mode="local">本地双人</button>
+          </div>
+        </section>
+
+        <section class="section" id="difficulty-section">
+          <h2>电脑难度</h2>
+          <div class="difficulty" id="difficulty-select">
+            <button type="button" data-level="easy">简单</button>
+            <button class="active" type="button" data-level="medium">普通</button>
+            <button type="button" data-level="hard">困难</button>
+          </div>
+          <p class="hint" id="difficulty-hint">会主动进攻，也会阻挡明显威胁。</p>
+        </section>
+
+        <section class="section" id="side-section">
+          <h2>玩家执子</h2>
+          <div class="segmented" id="side-select">
+            <button class="active" type="button" data-side="black">
+              <span class="stone black"></span>执黑先行
+            </button>
+            <button type="button" data-side="white">
+              <span class="stone white"></span>执白后行
+            </button>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>本局信息</h2>
+          <div class="score-row">
+            <div><span class="stone black"></span><span id="black-name">玩家</span></div>
+            <strong id="black-wins">0</strong>
+          </div>
+          <div class="score-row">
+            <div><span class="stone white"></span><span id="white-name">电脑</span></div>
+            <strong id="white-wins">0</strong>
+          </div>
+          <p class="moves">已落子 <strong id="move-count">0</strong> 手</p>
+        </section>
+
+        <section class="section actions">
+          <button class="btn primary" id="btn-new" type="button">重新开局</button>
+          <button class="btn" id="btn-undo" type="button" disabled>悔棋</button>
+        </section>
+
+        <section class="section rules">
+          <h2>玩法</h2>
+          <p class="hint">点击棋盘交叉点落子。黑方先行，横、竖或斜线率先连成连续五子即获胜。切换模式、难度或执子颜色会自动开始新的一局。</p>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <dialog id="result-dialog">
+    <div class="modal">
+      <span class="result-stone stone black" id="result-stone"></span>
+      <h3 id="result-title">黑方获胜</h3>
+      <p id="result-text">漂亮的五子连线！</p>
+      <div class="modal-actions">
+        <button class="btn" id="btn-close" type="button">查看棋盘</button>
+        <button class="btn primary" id="btn-again" type="button">再来一局</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

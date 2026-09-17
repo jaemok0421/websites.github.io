@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>密码生成器</title>
+  <meta name="description" content="按长度与字符集随机生成高强度密码。">
+  <link rel="stylesheet" href="../css/tool.css">
+</head>
+<body>
+  <div class="page">
+    <nav class="crumb">
+      <a href="../../index.html">首页</a><span>/</span>
+      <a href="../index.html">网页工具箱</a><span>/</span>
+      <span>密码生成器</span>
+    </nav>
+    <header class="tool-header">
+      <h1>密码生成器</h1>
+      <p>使用浏览器安全随机数生成密码，数据不会上传。</p>
+    </header>
+    <main class="panel stack">
+      <div class="field">
+        <label for="length">密码长度：<strong id="length-label">16</strong></label>
+        <div class="range-row">
+          <input id="length" type="range" min="4" max="64" value="16">
+          <input id="length-num" type="number" min="4" max="64" value="16" style="width:72px">
+        </div>
+      </div>
+      <div class="row">
+        <label class="check"><input type="checkbox" id="upper" checked>大写字母</label>
+        <label class="check"><input type="checkbox" id="lower" checked>小写字母</label>
+        <label class="check"><input type="checkbox" id="digits" checked>数字</label>
+        <label class="check"><input type="checkbox" id="symbols">符号</label>
+        <label class="check"><input type="checkbox" id="ambiguous">排除易混字符</label>
+      </div>
+      <div class="actions">
+        <button class="btn" id="generate" type="button">生成密码</button>
+        <button class="btn secondary" id="copy" type="button">复制</button>
+      </div>
+      <div class="field">
+        <label>结果</label>
+        <div class="output" id="result" aria-live="polite"></div>
+      </div>
+      <p class="status" id="status"></p>
+    </main>
+  </div>
+  <script>
+    const sets = {
+      upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      lower: "abcdefghijklmnopqrstuvwxyz",
+      digits: "0123456789",
+      symbols: "!@#$%^&*()-_=+[]{};:,.?/"
+    };
+    const ambiguous = new Set("O0oIl1|`'\"");
+
+    const lengthEl = document.getElementById("length");
+    const lengthNum = document.getElementById("length-num");
+    const lengthLabel = document.getElementById("length-label");
+    const resultEl = document.getElementById("result");
+    const statusEl = document.getElementById("status");
+
+    function syncLength(value) {
+      const n = Math.min(64, Math.max(4, Number(value) || 16));
+      lengthEl.value = n;
+      lengthNum.value = n;
+      lengthLabel.textContent = n;
+      return n;
+    }
+
+    function pool() {
+      let chars = "";
+      for (const key of ["upper", "lower", "digits", "symbols"]) {
+        if (document.getElementById(key).checked) chars += sets[key];
+      }
+      if (document.getElementById("ambiguous").checked) {
+        chars = [...chars].filter((c) => !ambiguous.has(c)).join("");
+      }
+      return chars;
+    }
+
+    function randomIndex(max) {
+      const arr = new Uint32Array(1);
+      crypto.getRandomValues(arr);
+      return arr[0] % max;
+    }
+
+    function generate() {
+      const chars = pool();
+      if (!chars) {
+        statusEl.textContent = "请至少选择一种字符类型。";
+        statusEl.className = "status error";
+        return;
+      }
+      const len = syncLength(lengthEl.value);
+      let out = "";
+      for (let i = 0; i < len; i++) out += chars[randomIndex(chars.length)];
+      resultEl.textContent = out;
+      statusEl.textContent = "已生成 " + len + " 位密码。";
+      statusEl.className = "status ok";
+    }
+
+    async function copy() {
+      const text = resultEl.textContent;
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        statusEl.textContent = "已复制到剪贴板。";
+        statusEl.className = "status ok";
+      } catch {
+        statusEl.textContent = "复制失败，请手动选择复制。";
+        statusEl.className = "status error";
+      }
+    }
+
+    lengthEl.addEventListener("input", () => syncLength(lengthEl.value));
+    lengthNum.addEventListener("change", () => syncLength(lengthNum.value));
+    document.getElementById("generate").addEventListener("click", generate);
+    document.getElementById("copy").addEventListener("click", copy);
+    generate();
+  </script>
+</body>
+</html>

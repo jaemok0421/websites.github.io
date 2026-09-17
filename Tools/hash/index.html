@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>哈希计算</title>
+  <meta name="description" content="计算 SHA-1 / SHA-256 / SHA-512 摘要。">
+  <link rel="stylesheet" href="../css/tool.css">
+</head>
+<body>
+  <div class="page">
+    <nav class="crumb">
+      <a href="../../index.html">首页</a><span>/</span>
+      <a href="../index.html">网页工具箱</a><span>/</span>
+      <span>哈希计算</span>
+    </nav>
+    <header class="tool-header">
+      <h1>哈希计算</h1>
+      <p>基于 Web Crypto API，在本地计算文本摘要。</p>
+    </header>
+    <main class="panel stack">
+      <div class="field">
+        <label for="input">输入文本</label>
+        <textarea id="input" placeholder="输入要计算哈希的文本…"></textarea>
+      </div>
+      <div class="field">
+        <label for="algo">算法</label>
+        <select id="algo">
+          <option value="SHA-1">SHA-1</option>
+          <option value="SHA-256" selected>SHA-256</option>
+          <option value="SHA-512">SHA-512</option>
+        </select>
+      </div>
+      <div class="actions">
+        <button class="btn" id="hash" type="button">计算</button>
+        <button class="btn secondary" id="copy" type="button">复制结果</button>
+        <button class="btn ghost" id="clear" type="button">清空</button>
+      </div>
+      <div class="field">
+        <label>十六进制结果</label>
+        <div class="output" id="output"></div>
+      </div>
+      <p class="status" id="status"></p>
+    </main>
+  </div>
+  <script>
+    const input = document.getElementById("input");
+    const algo = document.getElementById("algo");
+    const output = document.getElementById("output");
+    const statusEl = document.getElementById("status");
+
+    function toHex(buffer) {
+      return [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    function setStatus(msg, ok) {
+      statusEl.textContent = msg;
+      statusEl.className = "status " + (ok ? "ok" : "error");
+    }
+
+    async function run() {
+      try {
+        const data = new TextEncoder().encode(input.value);
+        const digest = await crypto.subtle.digest(algo.value, data);
+        output.textContent = toHex(digest);
+        setStatus(algo.value + " 计算完成。", true);
+      } catch (e) {
+        setStatus("计算失败：" + e.message, false);
+      }
+    }
+
+    document.getElementById("hash").onclick = run;
+    document.getElementById("copy").onclick = async () => {
+      if (!output.textContent) return;
+      try {
+        await navigator.clipboard.writeText(output.textContent);
+        setStatus("已复制结果。", true);
+      } catch {
+        setStatus("复制失败。", false);
+      }
+    };
+    document.getElementById("clear").onclick = () => {
+      input.value = "";
+      output.textContent = "";
+      statusEl.textContent = "";
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>颜色转换</title>
+  <meta name="description" content="HEX、RGB、HSL 互转与色块预览。">
+  <link rel="stylesheet" href="../css/tool.css">
+</head>
+<body>
+  <div class="page">
+    <nav class="crumb">
+      <a href="../../index.html">首页</a><span>/</span>
+      <a href="../index.html">网页工具箱</a><span>/</span>
+      <span>颜色转换</span>
+    </nav>
+    <header class="tool-header">
+      <h1>颜色转换</h1>
+      <p>在 HEX、RGB、HSL 之间互转，并实时预览。</p>
+    </header>
+    <main class="panel stack">
+      <div class="field">
+        <label for="picker">取色</label>
+        <input id="picker" type="color" value="#3b6cf0" style="width:100%;height:48px;border:none;padding:0;background:transparent;cursor:pointer">
+      </div>
+      <div class="preview" id="preview" style="background:#3b6cf0"></div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="hex">HEX</label>
+          <input id="hex" type="text" value="#3B6CF0">
+        </div>
+        <div class="field">
+          <label for="rgb">RGB</label>
+          <input id="rgb" type="text" value="rgb(59, 108, 240)">
+        </div>
+        <div class="field">
+          <label for="hsl">HSL</label>
+          <input id="hsl" type="text" value="hsl(224, 86%, 59%)">
+        </div>
+        <div class="field">
+          <label>快捷操作</label>
+          <div class="actions">
+            <button class="btn secondary" id="copy-hex" type="button">复制 HEX</button>
+            <button class="btn ghost" id="random" type="button">随机色</button>
+          </div>
+        </div>
+      </div>
+      <p class="status" id="status"></p>
+    </main>
+  </div>
+  <script>
+    const picker = document.getElementById("picker");
+    const preview = document.getElementById("preview");
+    const hexEl = document.getElementById("hex");
+    const rgbEl = document.getElementById("rgb");
+    const hslEl = document.getElementById("hsl");
+    const statusEl = document.getElementById("status");
+    let lock = false;
+
+    function clamp(n, min, max) {
+      return Math.min(max, Math.max(min, n));
+    }
+
+    function rgbToHex(r, g, b) {
+      return "#" + [r, g, b].map((v) => clamp(v, 0, 255).toString(16).padStart(2, "0")).join("").toUpperCase();
+    }
+
+    function hexToRgb(hex) {
+      let h = hex.trim().replace(/^#/, "");
+      if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+      if (!/^[0-9a-fA-F]{6}$/.test(h)) return null;
+      return {
+        r: parseInt(h.slice(0, 2), 16),
+        g: parseInt(h.slice(2, 4), 16),
+        b: parseInt(h.slice(4, 6), 16)
+      };
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0;
+      const l = (max + min) / 2;
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          default: h = (r - g) / d + 4;
+        }
+        h /= 6;
+      }
+      return {
+        h: Math.round(h * 360),
+        s: Math.round(s * 100),
+        l: Math.round(l * 100)
+      };
+    }
+
+    function hslToRgb(h, s, l) {
+      h = ((h % 360) + 360) % 360 / 360;
+      s = clamp(s, 0, 100) / 100;
+      l = clamp(l, 0, 100) / 100;
+      if (s === 0) {
+        const v = Math.round(l * 255);
+        return { r: v, g: v, b: v };
+      }
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      return {
+        r: Math.round(hue2rgb(p, q, h + 1 / 3) * 255),
+        g: Math.round(hue2rgb(p, q, h) * 255),
+        b: Math.round(hue2rgb(p, q, h - 1 / 3) * 255)
+      };
+    }
+
+    function parseRgb(text) {
+      const m = text.trim().match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i);
+      if (!m) return null;
+      return { r: +m[1], g: +m[2], b: +m[3] };
+    }
+
+    function parseHsl(text) {
+      const m = text.trim().match(/^hsla?\(\s*([-\d.]+)\s*,\s*([-\d.]+)%\s*,\s*([-\d.]+)%/i);
+      if (!m) return null;
+      return { h: +m[1], s: +m[2], l: +m[3] };
+    }
+
+    function applyRgb(rgb, source) {
+      if (!rgb || [rgb.r, rgb.g, rgb.b].some((v) => v < 0 || v > 255 || Number.isNaN(v))) {
+        statusEl.textContent = "颜色格式无效。";
+        statusEl.className = "status error";
+        return;
+      }
+      lock = true;
+      const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+      const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+      picker.value = hex.toLowerCase();
+      preview.style.background = hex;
+      if (source !== "hex") hexEl.value = hex;
+      if (source !== "rgb") rgbEl.value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+      if (source !== "hsl") hslEl.value = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+      lock = false;
+      statusEl.textContent = "已更新颜色。";
+      statusEl.className = "status ok";
+    }
+
+    picker.addEventListener("input", () => {
+      if (lock) return;
+      applyRgb(hexToRgb(picker.value), "picker");
+    });
+
+    hexEl.addEventListener("input", () => {
+      if (lock) return;
+      applyRgb(hexToRgb(hexEl.value), "hex");
+    });
+
+    rgbEl.addEventListener("input", () => {
+      if (lock) return;
+      applyRgb(parseRgb(rgbEl.value), "rgb");
+    });
+
+    hslEl.addEventListener("input", () => {
+      if (lock) return;
+      const hsl = parseHsl(hslEl.value);
+      if (!hsl) {
+        statusEl.textContent = "颜色格式无效。";
+        statusEl.className = "status error";
+        return;
+      }
+      applyRgb(hslToRgb(hsl.h, hsl.s, hsl.l), "hsl");
+    });
+
+    document.getElementById("copy-hex").onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(hexEl.value);
+        statusEl.textContent = "已复制 HEX。";
+        statusEl.className = "status ok";
+      } catch {
+        statusEl.textContent = "复制失败。";
+        statusEl.className = "status error";
+      }
+    };
+
+    document.getElementById("random").onclick = () => {
+      const rgb = {
+        r: Math.floor(Math.random() * 256),
+        g: Math.floor(Math.random() * 256),
+        b: Math.floor(Math.random() * 256)
+      };
+      applyRgb(rgb, "random");
+    };
+  </script>
+</body>
+</html>

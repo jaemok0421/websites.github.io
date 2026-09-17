@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>URL 编解码</title>
+  <meta name="description" content="URL 组件 encode / decode。">
+  <link rel="stylesheet" href="../css/tool.css">
+</head>
+<body>
+  <div class="page">
+    <nav class="crumb">
+      <a href="../../index.html">首页</a><span>/</span>
+      <a href="../index.html">网页工具箱</a><span>/</span>
+      <span>URL 编解码</span>
+    </nav>
+    <header class="tool-header">
+      <h1>URL 编解码</h1>
+      <p>对 URL 组件进行编码与解码，处理空格、中文等特殊字符。</p>
+    </header>
+    <main class="panel stack">
+      <div class="field">
+        <label for="input">输入</label>
+        <textarea id="input" placeholder="例如：你好 world&foo=1"></textarea>
+      </div>
+      <div class="actions">
+        <button class="btn" id="encode" type="button">编码</button>
+        <button class="btn secondary" id="decode" type="button">解码</button>
+        <button class="btn ghost" id="swap" type="button">交换</button>
+        <button class="btn ghost" id="clear" type="button">清空</button>
+      </div>
+      <div class="field">
+        <label for="output">输出</label>
+        <textarea id="output" readonly></textarea>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="copy" type="button">复制输出</button>
+      </div>
+      <p class="status" id="status"></p>
+    </main>
+  </div>
+  <script>
+    const input = document.getElementById("input");
+    const output = document.getElementById("output");
+    const statusEl = document.getElementById("status");
+
+    function setStatus(msg, ok) {
+      statusEl.textContent = msg;
+      statusEl.className = "status " + (ok ? "ok" : "error");
+    }
+
+    document.getElementById("encode").onclick = () => {
+      try {
+        output.value = encodeURIComponent(input.value);
+        setStatus("编码完成。", true);
+      } catch (e) {
+        setStatus("编码失败：" + e.message, false);
+      }
+    };
+
+    document.getElementById("decode").onclick = () => {
+      try {
+        output.value = decodeURIComponent(input.value.replace(/\+/g, "%20"));
+        setStatus("解码完成。", true);
+      } catch {
+        setStatus("解码失败：包含非法转义序列。", false);
+      }
+    };
+
+    document.getElementById("swap").onclick = () => {
+      const a = input.value;
+      input.value = output.value;
+      output.value = a;
+    };
+
+    document.getElementById("clear").onclick = () => {
+      input.value = "";
+      output.value = "";
+      statusEl.textContent = "";
+    };
+
+    document.getElementById("copy").onclick = async () => {
+      if (!output.value) return;
+      try {
+        await navigator.clipboard.writeText(output.value);
+        setStatus("已复制输出。", true);
+      } catch {
+        setStatus("复制失败。", false);
+      }
+    };
+  </script>
+</body>
+</html>

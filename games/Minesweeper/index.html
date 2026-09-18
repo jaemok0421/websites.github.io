@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>扫雷</title>
+  <meta name="description" content="经典扫雷网页游戏，支持初级、中级和高级难度，以及触屏长按插旗。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23182739'/%3E%3Ccircle cx='32' cy='34' r='14' fill='%23ff6b4a'/%3E%3Cpath d='M32 8v9M12 18l7 7M52 18l-7 7M9 38h9M55 38h-9M22 12l4 8M42 12l-4 8' stroke='white' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='27' cy='29' r='4' fill='%23fff' fill-opacity='.7'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <a class="back" href="../index.html">全部游戏</a>
+        <h1>扫雷</h1>
+        <p>在数字的指引下，找出所有隐藏的地雷。</p>
+      </div>
+
+      <div class="difficulty" role="group" aria-label="选择难度">
+        <button class="difficulty-btn active" type="button" data-level="beginner">
+          <strong>初级</strong><span>9 × 9</span>
+        </button>
+        <button class="difficulty-btn" type="button" data-level="intermediate">
+          <strong>中级</strong><span>16 × 16</span>
+        </button>
+        <button class="difficulty-btn" type="button" data-level="expert">
+          <strong>高级</strong><span>30 × 16</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="game-card" aria-label="扫雷游戏">
+        <div class="game-toolbar">
+          <div class="counter">
+            <span class="counter-icon flag-icon" aria-hidden="true"></span>
+            <span>
+              <small>剩余地雷</small>
+              <strong id="mine-count">010</strong>
+            </span>
+          </div>
+
+          <button class="face" id="reset-btn" type="button" aria-label="重新开始" title="重新开始">
+            <span aria-hidden="true">🙂</span>
+          </button>
+
+          <div class="counter timer-counter">
+            <span class="counter-icon clock-icon" aria-hidden="true"></span>
+            <span>
+              <small>用时</small>
+              <strong id="timer">000</strong>
+            </span>
+          </div>
+        </div>
+
+        <div class="board-scroller">
+          <div class="board" id="board" role="grid" aria-label="扫雷棋盘"></div>
+        </div>
+
+        <div class="game-footer">
+          <p id="status-text" role="status">点击任意方格开始</p>
+          <div class="best">
+            <span>本机最佳</span>
+            <strong id="best-time">—</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="how-to">
+        <div class="tip">
+          <span class="tip-number">01</span>
+          <div><h2>翻开方格</h2><p>单击方格查看数字；第一次点击永远安全。</p></div>
+        </div>
+        <div class="tip">
+          <span class="tip-number">02</span>
+          <div><h2>标记地雷</h2><p>右键插旗。触屏设备可长按方格插旗。</p></div>
+        </div>
+        <div class="tip">
+          <span class="tip-number">03</span>
+          <div><h2>快速展开</h2><p>数字周围旗帜足够时，再点数字可展开邻格。</p></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="overlay" id="result-overlay" aria-hidden="true">
+    <div class="result-card" role="dialog" aria-modal="true" aria-labelledby="result-title">
+      <div class="result-mark" id="result-mark" aria-hidden="true">✓</div>
+      <p class="eyebrow" id="result-eyebrow">排雷完成</p>
+      <h2 id="result-title">干得漂亮！</h2>
+      <p id="result-copy">你成功找出了全部地雷。</p>
+      <div class="result-time"><span>完成时间</span><strong id="result-time">0 秒</strong></div>
+      <div class="result-actions">
+        <button class="btn secondary" id="close-result" type="button">查看棋盘</button>
+        <button class="btn primary" id="play-again" type="button">再来一局</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

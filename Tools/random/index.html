@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>随机数生成与抽签</title>
+  <meta name="description" content="在指定范围生成随机整数，或从自定义名单中随机抽签。">
+  <link rel="stylesheet" href="../css/tool.css">
+  <style>
+    .mode-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 6px;
+      border-radius: 14px;
+      background: #e9eef5;
+    }
+
+    .mode-tab {
+      min-height: 44px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      font: 600 15px var(--ui);
+      cursor: pointer;
+    }
+
+    .mode-tab[aria-selected="true"] {
+      background: #fff;
+      color: var(--accent);
+      box-shadow: 0 4px 14px rgba(36, 48, 73, 0.1);
+    }
+
+    [role="tabpanel"][hidden] {
+      display: none;
+    }
+
+    .result-box {
+      min-height: 120px;
+      display: grid;
+      place-items: center;
+      gap: 10px;
+      padding: 22px;
+      border: 1px solid #cce9df;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #e6f7f2, #f7fcfa);
+      text-align: center;
+    }
+
+    .result-box strong {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: clamp(27px, 8vw, 42px);
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .result-box span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .draw-result strong {
+      font-family: var(--ui);
+    }
+
+    .draw-result.is-rolling strong {
+      opacity: 0.55;
+      transform: scale(0.97);
+    }
+
+    .candidate-info {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: -8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .history {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .history li {
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: #eef2f7;
+      color: #475569;
+      font-size: 13px;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .draw-result strong {
+        transition: opacity 0.12s ease, transform 0.12s ease;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav class="crumb">
+      <a href="../../index.html">首页</a><span>/</span>
+      <a href="../index.html">网页工具箱</a><span>/</span>
+      <span>随机数生成与抽签</span>
+    </nav>
+
+    <header class="tool-header">
+      <h1>随机数生成 / 抽签</h1>
+      <p>使用浏览器安全随机数，可生成随机整数或从自定义名单中抽取结果。</p>
+    </header>
+
+    <main>
+      <div class="mode-tabs" role="tablist" aria-label="选择随机工具">
+        <button class="mode-tab" id="number-tab" type="button" role="tab" aria-selected="true" aria-controls="number-panel">随机数</button>
+        <button class="mode-tab" id="draw-tab" type="button" role="tab" aria-selected="false" aria-controls="draw-panel">名单抽签</button>
+      </div>
+
+      <section class="panel stack" id="number-panel" role="tabpanel" aria-labelledby="number-tab">
+        <div class="grid-2">
+          <div class="field">
+            <label for="minimum">最小值（包含）</label>
+            <input id="minimum" type="number" value="1" step="1" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="maximum">最大值（包含）</label>
+            <input id="maximum" type="number" value="100" step="1" inputmode="numeric">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="quantity">生成数量</label>
+          <input id="quantity" type="number" min="1" max="100" value="1" step="1" inputmode="numeric">
+        </div>
+
+        <label class="check"><input id="unique" type="checkbox">结果不重复</label>
+
+        <div class="actions">
+          <button class="btn" id="generate" type="button">生成随机数</button>
+          <button class="btn secondary" id="copy-number" type="button">复制结果</button>
+        </div>
+
+        <div class="result-box" aria-live="polite">
+          <strong id="number-result">—</strong>
+          <span id="number-caption">设置范围后点击生成</span>
+        </div>
+        <p class="status" id="number-status"></p>
+      </section>
+
+      <section class="panel stack" id="draw-panel" role="tabpanel" aria-labelledby="draw-tab" hidden>
+        <div class="field">
+          <label for="candidates">候选名单（每行一项，也可用逗号分隔）</label>
+          <textarea id="candidates" placeholder="小明&#10;小红&#10;小刚">小明
+小红
+小刚
+小李
+小王</textarea>
+        </div>
+        <div class="candidate-info">
+          <span id="candidate-count">共 5 项</span>
+          <span>空白项会被忽略</span>
+        </div>
+
+        <div class="field">
+          <label for="draw-count">抽取数量</label>
+          <input id="draw-count" type="number" min="1" max="100" value="1" step="1" inputmode="numeric">
+        </div>
+        <label class="check"><input id="draw-unique" type="checkbox" checked>一次抽取中不重复</label>
+
+        <div class="actions">
+          <button class="btn" id="draw" type="button">开始抽签</button>
+          <button class="btn secondary" id="copy-draw" type="button">复制结果</button>
+          <button class="btn ghost" id="clear-history" type="button">清空记录</button>
+        </div>
+
+        <div class="result-box draw-result" id="draw-result-box" aria-live="polite">
+          <strong id="draw-result">等待抽签</strong>
+          <span id="draw-caption">名单只保存在当前页面中</span>
+        </div>
+
+        <div>
+          <span class="group-title">最近结果</span>
+          <ul class="history" id="history"><li>暂无记录</li></ul>
+        </div>
+        <p class="status" id="draw-status"></p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const tabs = [...document.querySelectorAll('[role="tab"]')];
+    const numberResultEl = document.getElementById("number-result");
+    const numberCaptionEl = document.getElementById("number-caption");
+    const numberStatusEl = document.getElementById("number-status");
+    const candidatesEl = document.getElementById("candidates");
+    const candidateCountEl = document.getElementById("candidate-count");
+    const drawResultEl = document.getElementById("draw-result");
+    const drawCaptionEl = document.getElementById("draw-caption");
+    const drawStatusEl = document.getElementById("draw-status");
+    const drawResultBox = document.getElementById("draw-result-box");
+    const historyEl = document.getElementById("history");
+    let numberResult = [];
+    let drawResult = [];
+    let history = [];
+    let rollingTimer = 0;
+
+    function showStatus(element, message = "", type = "") {
+      element.textContent = message;
+      element.className = `status${type ? ` ${type}` : ""}`;
+    }
+
+    function secureRandomInt(minimum, maximum) {
+      const range = maximum - minimum + 1;
+      if (!Number.isSafeInteger(range) || range < 1 || range > 0x100000000) {
+        throw new Error("随机范围不能超过 4,294,967,296");
+      }
+
+      const limit = Math.floor(0x100000000 / range) * range;
+      const buffer = new Uint32Array(1);
+      do {
+        crypto.getRandomValues(buffer);
+      } while (buffer[0] >= limit);
+      return minimum + (buffer[0] % range);
+    }
+
+    function readInteger(id, label) {
+      const raw = document.getElementById(id).value;
+      const value = Number(raw);
+      if (!Number.isSafeInteger(value)) throw new Error(`${label}必须是安全整数`);
+      return value;
+    }
+
+    function generateNumbers() {
+      try {
+        const minimum = readInteger("minimum", "最小值");
+        const maximum = readInteger("maximum", "最大值");
+        const quantity = readInteger("quantity", "生成数量");
+        const unique = document.getElementById("unique").checked;
+        const range = maximum - minimum + 1;
+
+        if (minimum > maximum) throw new Error("最小值不能大于最大值");
+        if (quantity < 1 || quantity > 100) throw new Error("生成数量应在 1 到 100 之间");
+        if (unique && quantity > range) throw new Error("不重复时，生成数量不能超过可选数字数量");
+
+        const values = [];
+        const used = new Set();
+        while (values.length < quantity) {
+          const value = secureRandomInt(minimum, maximum);
+          if (!unique || !used.has(value)) {
+            values.push(value);
+            used.add(value);
+          }
+        }
+
+        numberResult = values;
+        numberResultEl.textContent = values.join("，");
+        numberCaptionEl.textContent = `${minimum} 至 ${maximum} · 共 ${quantity} 个${unique ? "不重复" : ""}整数`;
+        showStatus(numberStatusEl, "随机数已生成。", "ok");
+      } catch (error) {
+        showStatus(numberStatusEl, error.message, "error");
+      }
+    }
+
+    function candidates() {
+      return candidatesEl.value
+        .split(/[\n,，]+/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    function updateCandidateCount() {
+      candidateCountEl.textContent = `共 ${candidates().length} 项`;
+    }
+
+    function pick(items, count, unique) {
+      if (unique) {
+        const pool = [...items];
+        for (let index = pool.length - 1; index > 0; index--) {
+          const swapIndex = secureRandomInt(0, index);
+          [pool[index], pool[swapIndex]] = [pool[swapIndex], pool[index]];
+        }
+        return pool.slice(0, count);
+      }
+      return Array.from({ length: count }, () => items[secureRandomInt(0, items.length - 1)]);
+    }
+
+    function renderHistory() {
+      historyEl.innerHTML = "";
+      if (!history.length) {
+        const item = document.createElement("li");
+        item.textContent = "暂无记录";
+        historyEl.appendChild(item);
+        return;
+      }
+      history.forEach((record) => {
+        const item = document.createElement("li");
+        item.textContent = record;
+        historyEl.appendChild(item);
+      });
+    }
+
+    function draw() {
+      window.clearInterval(rollingTimer);
+      try {
+        const items = candidates();
+        const count = readInteger("draw-count", "抽取数量");
+        const unique = document.getElementById("draw-unique").checked;
+        if (!items.length) throw new Error("请先输入至少一个候选项");
+        if (count < 1 || count > 100) throw new Error("抽取数量应在 1 到 100 之间");
+        if (unique && count > items.length) throw new Error("不重复时，抽取数量不能超过候选项数量");
+
+        const result = pick(items, count, unique);
+        let ticks = 0;
+        drawResultBox.classList.add("is-rolling");
+        drawCaptionEl.textContent = "正在抽取…";
+        rollingTimer = window.setInterval(() => {
+          drawResultEl.textContent = items[secureRandomInt(0, items.length - 1)];
+          ticks++;
+          if (ticks >= 8) {
+            window.clearInterval(rollingTimer);
+            drawResult = result;
+            drawResultEl.textContent = result.join("\n");
+            drawCaptionEl.textContent = `从 ${items.length} 项中抽取 ${count} 项`;
+            drawResultBox.classList.remove("is-rolling");
+            history = [result.join("、"), ...history].slice(0, 10);
+            renderHistory();
+            showStatus(drawStatusEl, "抽签完成。", "ok");
+          }
+        }, 70);
+      } catch (error) {
+        drawResultBox.classList.remove("is-rolling");
+        showStatus(drawStatusEl, error.message, "error");
+      }
+    }
+
+    async function copyResult(values, statusElement) {
+      if (!values.length) {
+        showStatus(statusElement, "还没有可复制的结果。", "error");
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(values.join("\n"));
+        showStatus(statusElement, "结果已复制。", "ok");
+      } catch {
+        showStatus(statusElement, "复制失败，请手动选择结果复制。", "error");
+      }
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.forEach((item) => {
+          const selected = item === tab;
+          item.setAttribute("aria-selected", String(selected));
+          document.getElementById(item.getAttribute("aria-controls")).hidden = !selected;
+        });
+      });
+    });
+
+    candidatesEl.addEventListener("input", updateCandidateCount);
+    document.getElementById("generate").addEventListener("click", generateNumbers);
+    document.getElementById("draw").addEventListener("click", draw);
+    document.getElementById("copy-number").addEventListener("click", () => copyResult(numberResult, numberStatusEl));
+    document.getElementById("copy-draw").addEventListener("click", () => copyResult(drawResult, drawStatusEl));
+    document.getElementById("clear-history").addEventListener("click", () => {
+      history = [];
+      renderHistory();
+      showStatus(drawStatusEl, "抽签记录已清空。", "ok");
+    });
+
+    updateCandidateCount();
+    generateNumbers();
+  </script>
+</body>
+</html>

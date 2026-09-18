@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>计算器</title>
+  <meta name="description" content="支持四则运算、括号、百分比与常用快捷运算的网页计算器。">
+  <link rel="stylesheet" href="../css/tool.css">
+  <style>
+    .calculator {
+      width: min(100%, 520px);
+      margin: 0 auto;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .display {
+      min-height: 138px;
+      padding: 24px;
+      background: linear-gradient(145deg, #163f36, #1f8a70);
+      color: #fff;
+      text-align: right;
+    }
+
+    .expression {
+      min-height: 28px;
+      margin: 0 0 10px;
+      color: rgba(255, 255, 255, 0.7);
+      font-family: var(--mono);
+      font-size: 17px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .answer {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: clamp(32px, 9vw, 48px);
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding: 18px;
+      background: #f7f9fc;
+    }
+
+    .key {
+      min-height: 58px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+      color: var(--ink);
+      font: 600 19px var(--ui);
+      cursor: pointer;
+      transition: transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .key:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .key:active {
+      transform: scale(0.96);
+    }
+
+    .key.operator {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .key.utility {
+      color: #475569;
+      background: #eef2f7;
+    }
+
+    .key.equals {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .key.equals:hover {
+      background: var(--accent-hover);
+    }
+
+    .keyboard-hint {
+      padding: 0 18px 18px;
+      background: #f7f9fc;
+      text-align: center;
+    }
+
+    @media (max-width: 420px) {
+      .display {
+        min-height: 120px;
+        padding: 20px 18px;
+      }
+
+      .keys {
+        gap: 8px;
+        padding: 12px;
+      }
+
+      .key {
+        min-height: 54px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav class="crumb">
+      <a href="../../index.html">首页</a><span>/</span>
+      <a href="../index.html">网页工具箱</a><span>/</span>
+      <span>计算器</span>
+    </nav>
+
+    <header class="tool-header">
+      <h1>计算器</h1>
+      <p>支持四则运算、括号、百分比和键盘输入，计算过程仅在本地完成。</p>
+    </header>
+
+    <main class="panel calculator">
+      <div class="display" aria-live="polite">
+        <p class="expression" id="expression">0</p>
+        <p class="answer" id="answer">0</p>
+      </div>
+
+      <div class="keys" id="keys">
+        <button class="key utility" type="button" data-action="clear">AC</button>
+        <button class="key utility" type="button" data-value="(">(</button>
+        <button class="key utility" type="button" data-value=")">)</button>
+        <button class="key operator" type="button" data-value="/">÷</button>
+
+        <button class="key utility" type="button" data-action="sqrt">√</button>
+        <button class="key utility" type="button" data-action="square">x²</button>
+        <button class="key utility" type="button" data-value="%">%</button>
+        <button class="key operator" type="button" data-value="*">×</button>
+
+        <button class="key" type="button" data-value="7">7</button>
+        <button class="key" type="button" data-value="8">8</button>
+        <button class="key" type="button" data-value="9">9</button>
+        <button class="key operator" type="button" data-value="-">−</button>
+
+        <button class="key" type="button" data-value="4">4</button>
+        <button class="key" type="button" data-value="5">5</button>
+        <button class="key" type="button" data-value="6">6</button>
+        <button class="key operator" type="button" data-value="+">+</button>
+
+        <button class="key" type="button" data-value="1">1</button>
+        <button class="key" type="button" data-value="2">2</button>
+        <button class="key" type="button" data-value="3">3</button>
+        <button class="key utility" type="button" data-action="backspace" aria-label="退格">⌫</button>
+
+        <button class="key utility" type="button" data-action="negate">±</button>
+        <button class="key" type="button" data-value="0">0</button>
+        <button class="key" type="button" data-value=".">.</button>
+        <button class="key equals" type="button" data-action="calculate">=</button>
+      </div>
+      <p class="hint keyboard-hint">键盘：数字与运算符输入，Enter 计算，Esc 清空</p>
+    </main>
+  </div>
+
+  <script>
+    const expressionEl = document.getElementById("expression");
+    const answerEl = document.getElementById("answer");
+    let expression = "";
+    let justCalculated = false;
+
+    const precedence = { "+": 1, "-": 1, "*": 2, "/": 2, "u-": 3, "%": 4 };
+    const rightAssociative = new Set(["u-"]);
+
+    function tokenize(source) {
+      const tokens = [];
+      let index = 0;
+
+      while (index < source.length) {
+        const char = source[index];
+        if (/\s/.test(char)) {
+          index++;
+          continue;
+        }
+        if (/\d|\./.test(char)) {
+          const match = source
+            .slice(index)
+            .match(/^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/i);
+          if (!match) throw new Error("数字格式有误");
+          tokens.push(Number(match[0]));
+          index += match[0].length;
+          continue;
+        }
+        if ("+-*/()%".includes(char)) {
+          tokens.push(char);
+          index++;
+          continue;
+        }
+        throw new Error("包含无效字符");
+      }
+      return tokens;
+    }
+
+    function toPostfix(tokens) {
+      const output = [];
+      const operators = [];
+      let previous = "start";
+
+      tokens.forEach((token) => {
+        if (typeof token === "number") {
+          output.push(token);
+          previous = "number";
+          return;
+        }
+        if (token === "(") {
+          operators.push(token);
+          previous = "left";
+          return;
+        }
+        if (token === ")") {
+          while (operators.length && operators.at(-1) !== "(") output.push(operators.pop());
+          if (operators.pop() !== "(") throw new Error("括号不匹配");
+          previous = "right";
+          return;
+        }
+
+        let operator = token;
+        if (operator === "-" && ["start", "operator", "left"].includes(previous)) operator = "u-";
+        if (operator === "%" && !["number", "right", "percent"].includes(previous)) {
+          throw new Error("百分号位置有误");
+        }
+        if (operator !== "%" && ["operator", "left"].includes(previous) && operator !== "u-") {
+          throw new Error("运算符位置有误");
+        }
+
+        while (
+          operators.length &&
+          operators.at(-1) !== "(" &&
+          (precedence[operators.at(-1)] > precedence[operator] ||
+            (precedence[operators.at(-1)] === precedence[operator] && !rightAssociative.has(operator)))
+        ) {
+          output.push(operators.pop());
+        }
+        operators.push(operator);
+        previous = operator === "%" ? "percent" : "operator";
+      });
+
+      while (operators.length) {
+        const operator = operators.pop();
+        if (operator === "(") throw new Error("括号不匹配");
+        output.push(operator);
+      }
+      return output;
+    }
+
+    function evaluate(source) {
+      const postfix = toPostfix(tokenize(source));
+      const stack = [];
+
+      postfix.forEach((token) => {
+        if (typeof token === "number") {
+          stack.push(token);
+        } else if (token === "u-" || token === "%") {
+          if (!stack.length) throw new Error("表达式不完整");
+          const value = stack.pop();
+          stack.push(token === "u-" ? -value : value / 100);
+        } else {
+          if (stack.length < 2) throw new Error("表达式不完整");
+          const right = stack.pop();
+          const left = stack.pop();
+          if (token === "/" && right === 0) throw new Error("不能除以零");
+          stack.push({ "+": left + right, "-": left - right, "*": left * right, "/": left / right }[token]);
+        }
+      });
+
+      if (stack.length !== 1 || !Number.isFinite(stack[0])) throw new Error("无法计算");
+      return stack[0];
+    }
+
+    function formatResult(value) {
+      if (Object.is(value, -0)) value = 0;
+      if (Math.abs(value) >= 1e12 || (Math.abs(value) < 1e-9 && value !== 0)) {
+        return value.toExponential(10).replace(/\.?0+e/, "e");
+      }
+      return Number(value.toPrecision(12)).toString();
+    }
+
+    function displayExpression(source) {
+      return [...source].map((char, index) => {
+        if (char === "*") return " × ";
+        if (char === "/") return " ÷ ";
+        if (char === "+" && !/[eE]/.test(source[index - 1] || "")) return " + ";
+        if (char === "-" && !/[eE]/.test(source[index - 1] || "")) return " − ";
+        return char;
+      }).join("");
+    }
+
+    function render(preview = true) {
+      expressionEl.textContent = expression ? displayExpression(expression) : "0";
+      if (!expression) {
+        answerEl.textContent = "0";
+      } else if (preview) {
+        try {
+          answerEl.textContent = formatResult(evaluate(expression));
+        } catch {
+          answerEl.textContent = "…";
+        }
+      }
+    }
+
+    function append(value) {
+      if (justCalculated && /[\d.(]/.test(value)) expression = "";
+      justCalculated = false;
+
+      if (value === ".") {
+        const tail = expression.split(/[+\-*/()%]/).at(-1);
+        if (tail.includes(".")) return;
+        if (!tail) value = "0.";
+      }
+      expression += value;
+      render();
+    }
+
+    function calculate() {
+      if (!expression) return;
+      try {
+        const result = formatResult(evaluate(expression));
+        expressionEl.textContent = `${displayExpression(expression)} =`;
+        answerEl.textContent = result;
+        expression = result;
+        justCalculated = true;
+      } catch (error) {
+        answerEl.textContent = error.message;
+      }
+    }
+
+    function transform(action) {
+      try {
+        const value = expression ? evaluate(expression) : 0;
+        if (action === "sqrt" && value < 0) throw new Error("负数不能开平方");
+        const result = action === "sqrt" ? Math.sqrt(value) : value ** 2;
+        expressionEl.textContent = `${action === "sqrt" ? "√" : "平方"}(${formatResult(value)})`;
+        expression = formatResult(result);
+        answerEl.textContent = expression;
+        justCalculated = true;
+      } catch (error) {
+        answerEl.textContent = error.message;
+      }
+    }
+
+    function negate() {
+      if (!expression) {
+        expression = "-";
+      } else {
+        const match = expression.match(/(\d*\.?\d+%?)$/);
+        if (match) {
+          const start = match.index;
+          const hasUnaryMinus =
+            expression[start - 1] === "-" &&
+            (start === 1 || "+-*/(".includes(expression[start - 2]));
+          expression = hasUnaryMinus
+            ? expression.slice(0, start - 1) + match[0]
+            : expression.slice(0, start) + `-${match[0]}`;
+        } else {
+          expression = `-(${expression})`;
+        }
+      }
+      justCalculated = false;
+      render();
+    }
+
+    document.getElementById("keys").addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      if (button.dataset.value) append(button.dataset.value);
+      if (button.dataset.action === "clear") {
+        expression = "";
+        justCalculated = false;
+        render();
+      }
+      if (button.dataset.action === "backspace") {
+        expression = expression.slice(0, -1);
+        justCalculated = false;
+        render();
+      }
+      if (button.dataset.action === "calculate") calculate();
+      if (button.dataset.action === "negate") negate();
+      if (["sqrt", "square"].includes(button.dataset.action)) transform(button.dataset.action);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (/^[\d+\-*/().%]$/.test(event.key)) {
+        event.preventDefault();
+        append(event.key);
+      } else if (event.key === "Enter" || event.key === "=") {
+        event.preventDefault();
+        calculate();
+      } else if (event.key === "Backspace") {
+        event.preventDefault();
+        expression = expression.slice(0, -1);
+        justCalculated = false;
+        render();
+      } else if (event.key === "Escape" || event.key === "Delete") {
+        expression = "";
+        justCalculated = false;
+        render();
+      }
+    });
+  </script>
+</body>
+</html>

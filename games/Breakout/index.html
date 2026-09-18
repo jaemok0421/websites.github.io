@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>打砖块</title>
+  <meta name="description" content="经典打砖块网页游戏，支持键盘、鼠标与触屏操作。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23152338'/%3E%3Crect x='9' y='13' width='13' height='8' rx='2' fill='%23ff6b5f'/%3E%3Crect x='25' y='13' width='13' height='8' rx='2' fill='%23ffd166'/%3E%3Crect x='41' y='13' width='14' height='8' rx='2' fill='%234ecdc4'/%3E%3Ccircle cx='39' cy='37' r='5' fill='white'/%3E%3Crect x='17' y='49' width='30' height='5' rx='2.5' fill='%235c8dff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <a class="back" href="../index.html">全部游戏</a>
+        <h1>打砖块</h1>
+        <p>控制挡板反弹小球，清除全部砖块。</p>
+      </div>
+      <button class="sound-btn" id="sound-btn" type="button" aria-pressed="true" aria-label="关闭音效">音效：开</button>
+    </header>
+
+    <main>
+      <section class="game-card" aria-label="打砖块游戏">
+        <div class="hud">
+          <div><small>得分</small><strong id="score">0000</strong></div>
+          <div><small>关卡</small><strong id="level">01</strong></div>
+          <div><small>生命</small><strong id="lives">● ● ●</strong></div>
+          <button id="pause-btn" type="button">暂停</button>
+        </div>
+
+        <div class="stage-wrap" id="stage-wrap">
+          <canvas id="game" width="900" height="560" aria-label="打砖块游戏区域"></canvas>
+          <div class="message show" id="message">
+            <p class="eyebrow" id="message-eyebrow">准备好了吗？</p>
+            <h2 id="message-title">打砖块</h2>
+            <p id="message-copy">移动挡板接住小球，消除全部砖块。</p>
+            <button id="action-btn" type="button">开始游戏</button>
+          </div>
+        </div>
+
+        <div class="power-status" id="power-status" aria-live="polite">
+          <span class="power-hint">带星砖块必定掉落道具，普通砖块也有概率掉落</span>
+          <div id="active-effects"></div>
+        </div>
+        <div class="mobile-controls" aria-label="触屏控制">
+          <button type="button" data-move="-1" aria-label="向左移动">←</button>
+          <button type="button" data-move="1" aria-label="向右移动">→</button>
+        </div>
+        <p class="status" id="status" role="status">按空格键开始，也可用鼠标或触屏移动挡板</p>
+      </section>
+
+      <section class="how-to">
+        <div><span>01</span><h2>移动挡板</h2><p>使用 ← →、A D、鼠标或触屏。</p></div>
+        <div><span>02</span><h2>连续反弹</h2><p>击球位置会改变小球的反弹方向。</p></div>
+        <div><span>03</span><h2>接住道具</h2><p>可获得加长、减速、护盾或分裂球；所有球掉落后才失去生命。</p></div>
+      </section>
+    </main>
+  </div>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -270,12 +270,24 @@
     return piece.promoted ? PROMOTED_LABEL[piece.type] : LABEL[piece.type];
   }
 
+  function bottomSide() {
+    return state.mode === "ai" ? state.humanSide : BLACK;
+  }
+
+  function isBoardFlipped() {
+    return bottomSide() === WHITE;
+  }
+
   function render() {
     const legalMap = new Map(state.legalTargets.map((move) => [`${move.to.r},${move.to.c}`, move]));
     const lastMove = state.history[state.history.length - 1]?.move;
+    const flipped = isBoardFlipped();
+    boardEl.classList.toggle("flipped", flipped);
     boardEl.innerHTML = "";
-    for (let r = 0; r < 9; r += 1) {
-      for (let c = 0; c < 9; c += 1) {
+    for (let displayRow = 0; displayRow < 9; displayRow += 1) {
+      for (let displayCol = 0; displayCol < 9; displayCol += 1) {
+        const r = flipped ? 8 - displayRow : displayRow;
+        const c = flipped ? 8 - displayCol : displayCol;
         const square = document.createElement("button");
         square.type = "button";
         square.className = "square";
@@ -291,7 +303,7 @@
         }
         if (piece) {
           const node = document.createElement("span");
-          node.className = `piece ${piece.side === WHITE ? "white" : "black"} ${piece.promoted ? "promoted" : ""} ${piece.type === "K" ? "king" : ""}`;
+          node.className = `piece ${piece.side !== bottomSide() ? "opponent" : ""} ${piece.promoted ? "promoted" : ""} ${piece.type === "K" ? "king" : ""}`;
           node.textContent = pieceText(piece);
           square.appendChild(node);
           square.setAttribute("aria-label", `${piece.side === BLACK ? "先手" : "后手"}${pieceText(piece)}`);
@@ -301,13 +313,16 @@
         boardEl.appendChild(square);
       }
     }
-    renderHand(BLACK, blackHandEl);
-    renderHand(WHITE, whiteHandEl);
+    const lowerSide = bottomSide();
+    renderHand(-lowerSide, whiteHandEl, true);
+    renderHand(lowerSide, blackHandEl, false);
     updateHud();
   }
 
-  function renderHand(side, container) {
+  function renderHand(side, container, isOpponent) {
     container.innerHTML = "";
+    container.dataset.label = `${side === BLACK ? "先手" : "后手"}持驹`;
+    container.setAttribute("aria-label", container.dataset.label);
     let any = false;
     for (const type of TYPES) {
       const count = state.game.hands[side][type];
@@ -315,7 +330,7 @@
       any = true;
       const button = document.createElement("button");
       button.type = "button";
-      button.className = `hand-piece ${side === WHITE ? "white" : ""}`;
+      button.className = `hand-piece ${isOpponent ? "opponent" : ""}`;
       if (state.selected?.drop === type && state.game.turn === side) button.classList.add("selected");
       button.dataset.type = type;
       button.dataset.side = String(side);
@@ -343,7 +358,7 @@
 
   function updateHud() {
     const turn = state.game.turn;
-    turnCard.classList.toggle("white", turn === WHITE);
+    turnCard.classList.toggle("opponent", turn !== bottomSide());
     let status = `${sideName(turn)}（${turn === BLACK ? "先手" : "后手"}）`;
     if (state.over) status = "本局结束";
     turnLabel.textContent = status;

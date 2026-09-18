@@ -19,12 +19,16 @@
     <header class="hero">
       <div>
         <h1>网页工具箱</h1>
-        <p>纯前端工具，数据留在本地浏览器。目前已收录 8 个常用工具。</p>
+        <p>打开浏览器即可使用。目前已收录 11 个常用工具。</p>
       </div>
-      <div class="badge">已收录 <strong>8</strong> 个</div>
+      <div class="badge">已收录 <strong>11</strong> 个</div>
     </header>
 
-    <main class="grid">
+    <div class="filters" data-tag-filters aria-label="按标签筛选工具">
+      <span class="filter-label">按标签筛选</span>
+    </div>
+
+    <main class="grid" data-filter-grid>
       <a class="card" href="password/index.html">
         <div class="cover" aria-hidden="true" style="background:linear-gradient(160deg,#e6f7f2,#c8ebe1)">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -136,6 +140,23 @@
         </div>
       </a>
 
+      <a class="card" href="currency/index.html">
+        <div class="cover" aria-hidden="true" style="background:linear-gradient(160deg,#e6f7f2,#c8ebe1)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+            <rect width="64" height="64" rx="14" fill="#1f8a70"/>
+            <circle cx="24" cy="28" r="11" fill="none" stroke="#fff" stroke-width="3"/>
+            <path d="M20 24h8M24 20v16M20 31h8" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M36 25h12l-4-4M48 39H36l4 4" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="meta"><span class="tag">金融</span></div>
+          <h2>汇率换算</h2>
+          <p>查询公开参考汇率，快速换算世界常用货币。</p>
+          <span class="play" style="background:#1f8a70">打开工具</span>
+        </div>
+      </a>
+
       <a class="card" href="hash/index.html">
         <div class="cover" aria-hidden="true" style="background:linear-gradient(160deg,#ecfdf5,#bbf7d0)">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -151,7 +172,42 @@
           <span class="play" style="background:#059669">打开工具</span>
         </div>
       </a>
+
+      <a class="card" href="calculator/index.html">
+        <div class="cover" aria-hidden="true" style="background:linear-gradient(160deg,#e6f7f2,#c8ebe1)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+            <rect width="64" height="64" rx="14" fill="#1f8a70"/>
+            <rect x="17" y="12" width="30" height="40" rx="5" fill="none" stroke="#fff" stroke-width="3"/>
+            <path d="M23 20h18M24 30h4M36 30h4M24 38h4M36 38h4M24 46h4M36 46h4" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="meta"><span class="tag">计算</span></div>
+          <h2>计算器</h2>
+          <p>支持四则运算、括号、百分比和常用快捷运算。</p>
+          <span class="play" style="background:#1f8a70">打开工具</span>
+        </div>
+      </a>
+
+      <a class="card" href="random/index.html">
+        <div class="cover" aria-hidden="true" style="background:linear-gradient(160deg,#f3e8ff,#e4d0fa)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+            <rect width="64" height="64" rx="14" fill="#7c3aed"/>
+            <path d="M18 20h28v10c0 10-6 18-14 18S18 40 18 30V20z" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M23 15h18M25 28h14" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="27" cy="35" r="2" fill="#fff"/>
+            <circle cx="36" cy="39" r="2" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="meta"><span class="tag">随机</span></div>
+          <h2>随机数 / 抽签</h2>
+          <p>生成指定范围随机整数，或从自定义名单中公平抽取。</p>
+          <span class="play" style="background:#7c3aed">打开工具</span>
+        </div>
+      </a>
     </main>
   </div>
+  <script src="../js/hub-filter.js"></script>
 </body>
 </html>

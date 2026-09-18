@@ -19,12 +19,16 @@
     <header class="hero">
       <div>
         <h1>网页游戏</h1>
-        <p>打开本页即可浏览当前目录下的全部游戏。目前已收录 4 款。</p>
+        <p>打开本页即可浏览当前目录下的全部游戏。目前已收录 7 款。</p>
       </div>
-      <div class="badge">已收录 <strong>4</strong> 款</div>
+      <div class="badge">已收录 <strong>7</strong> 款</div>
     </header>
 
-    <main class="grid">
+    <div class="filters" data-tag-filters aria-label="按标签筛选游戏">
+      <span class="filter-label">按标签筛选</span>
+    </div>
+
+    <main class="grid" data-filter-grid>
       <a class="card" href="Sudoku/index.html">
         <div class="cover" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -40,6 +44,51 @@
           </div>
           <h2>数独</h2>
           <p>按难度随机生成题目，支持笔记、提示、检查，以及关卡导入导出。</p>
+          <span class="play">开始游玩</span>
+        </div>
+      </a>
+
+      <a class="card" href="Minesweeper/index.html">
+        <div class="cover" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+            <rect width="64" height="64" rx="14" fill="#182739"/>
+            <circle cx="32" cy="35" r="13" fill="#ff5c3a"/>
+            <path d="M32 9v9M12 19l7 7M52 19l-7 7M9 39h9M55 39h-9M21 12l5 8M43 12l-5 8" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+            <circle cx="27" cy="30" r="3.5" fill="white" fill-opacity=".65"/>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="meta">
+            <span class="tag">益智</span>
+            <span class="tag">经典</span>
+          </div>
+          <h2>扫雷</h2>
+          <p>根据数字推断地雷位置，支持三级难度、触屏长按插旗和本机最佳纪录。</p>
+          <span class="play">开始游玩</span>
+        </div>
+      </a>
+
+      <a class="card" href="Breakout/index.html">
+        <div class="cover" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+            <rect width="64" height="64" rx="14" fill="#152338"/>
+            <rect x="8" y="12" width="14" height="8" rx="2" fill="#ff6b5f"/>
+            <rect x="25" y="12" width="14" height="8" rx="2" fill="#ffd166"/>
+            <rect x="42" y="12" width="14" height="8" rx="2" fill="#4ecdc4"/>
+            <rect x="8" y="23" width="14" height="8" rx="2" fill="#5c8dff"/>
+            <rect x="25" y="23" width="14" height="8" rx="2" fill="#a78bfa"/>
+            <rect x="42" y="23" width="14" height="8" rx="2" fill="#ff9f43"/>
+            <circle cx="40" cy="41" r="4.5" fill="white"/>
+            <rect x="16" y="51" width="32" height="5" rx="2.5" fill="#5c8dff"/>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="meta">
+            <span class="tag">街机</span>
+            <span class="tag">单人</span>
+          </div>
+          <h2>打砖块</h2>
+          <p>反弹小球挑战五个渐进关卡，击碎星标砖块并接取限时强化道具。</p>
           <span class="play">开始游玩</span>
         </div>
       </a>
@@ -104,7 +153,32 @@
           <span class="play">开始游玩</span>
         </div>
       </a>
+
+      <a class="card" href="Down100/index.html">
+        <div class="cover" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+            <rect width="64" height="64" rx="14" fill="#122131"/>
+            <path d="M8 8l6 10 6-10 6 10 6-10 6 10 6-10 6 10 6-10v5H8z" fill="#ff5d73"/>
+            <rect x="12" y="47" width="22" height="5" rx="2.5" fill="#54d5a4"/>
+            <rect x="35" y="34" width="18" height="5" rx="2.5" fill="#68a7ff"/>
+            <rect x="14" y="22" width="16" height="5" rx="2.5" fill="#ffd166"/>
+            <rect x="23" y="38" width="10" height="12" rx="3" fill="white"/>
+            <circle cx="26" cy="43" r="1" fill="#122131"/>
+            <circle cx="30" cy="43" r="1" fill="#122131"/>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="meta">
+            <span class="tag">街机</span>
+            <span class="tag">闯关</span>
+          </div>
+          <h2>勇下百层</h2>
+          <p>在不断上升的平台间向下穿梭，避开尖刺，挑战移动、易碎与弹力平台。</p>
+          <span class="play">开始游玩</span>
+        </div>
+      </a>
     </main>
   </div>
+  <script src="../js/hub-filter.js"></script>
 </body>
 </html>

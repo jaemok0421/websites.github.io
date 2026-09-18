@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>勇下百层</title>
+  <meta name="description" content="不断向下跳跃的平台街机游戏，避开尖刺并挑战第一百层。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23122131'/%3E%3Cpath d='M11 14l7 10 7-10 7 10 7-10 7 10 7-10v38H11z' fill='%23ff5d73'/%3E%3Cpath d='M23 34h18v7H23z' fill='%2374e0b4'/%3E%3Ccircle cx='28' cy='30' r='2' fill='white'/%3E%3Ccircle cx='36' cy='30' r='2' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <a class="back" href="../index.html">全部游戏</a>
+        <h1>勇下百层</h1>
+        <p>脚下不停，向第一百层进发。</p>
+      </div>
+      <button class="sound-btn" id="sound-btn" type="button" aria-pressed="true">音效：开</button>
+    </header>
+
+    <main>
+      <section class="game-card" aria-label="勇下百层游戏">
+        <div class="hud">
+          <div><small>当前层数</small><strong><span id="floor">001</span> / 100</strong></div>
+          <div><small>生命</small><strong id="health">♥ ♥ ♥</strong></div>
+          <div><small>最高纪录</small><strong id="best">001</strong></div>
+          <button id="pause-btn" type="button">暂停</button>
+        </div>
+
+        <div class="stage-wrap" id="stage-wrap">
+          <canvas id="game" width="560" height="720" aria-label="游戏区域"></canvas>
+          <div class="message show" id="message">
+            <p class="eyebrow" id="message-eyebrow">百层挑战</p>
+            <h2 id="message-title">勇下百层</h2>
+            <p id="message-copy">左右移动，落到更低的平台。别碰顶部尖刺，也别掉出画面。</p>
+            <button id="action-btn" type="button">开始挑战</button>
+          </div>
+        </div>
+
+        <div class="mobile-controls" aria-label="触屏控制">
+          <button type="button" data-move="-1" aria-label="向左移动">←</button>
+          <button type="button" data-move="1" aria-label="向右移动">→</button>
+        </div>
+        <p class="status" id="status" role="status">使用 ← → 或 A D 移动，角色会自动下落</p>
+      </section>
+
+      <section class="legend" aria-label="平台说明">
+        <div><i class="normal"></i><span><b>普通平台</b>安全落脚</span></div>
+        <div><i class="moving"></i><span><b>移动平台</b>左右巡航</span></div>
+        <div><i class="fragile"></i><span><b>易碎平台</b>踩过即碎</span></div>
+        <div><i class="spring"></i><span><b>弹力平台</b>快速下弹</span></div>
+      </section>
+    </main>
+  </div>
+  <script src="js/app.js"></script>
+</body>
+</html>

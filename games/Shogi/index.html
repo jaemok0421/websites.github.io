@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>日本将棋</title>
+  <meta name="description" content="支持本地双人和电脑对战的九路日本将棋。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M14 54L10 19 32 7l22 12-4 35z' fill='%23e2ad58' stroke='%23714a20' stroke-width='3'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='25' font-family='serif' fill='%232c1d10'%3E王%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <a class="back" href="../index.html">全部游戏</a>
+        <h1>日本将棋</h1>
+      </div>
+      <div class="turn-card" id="turn-card" aria-live="polite">
+        <span class="turn-piece" id="turn-piece">王</span>
+        <div>
+          <span class="label">当前回合</span>
+          <strong id="turn-label">先手</strong>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="game-card">
+        <div class="hand-row opponent" id="hand-white" aria-label="后手持驹"></div>
+        <div class="board-wrap">
+          <div class="board" id="board" role="grid" aria-label="九路日本将棋棋盘"></div>
+          <div class="thinking" id="thinking">电脑思考中<span>…</span></div>
+        </div>
+        <div class="hand-row" id="hand-black" aria-label="先手持驹"></div>
+        <p class="board-tip" id="board-tip">先手先行，点击棋子后选择落点</p>
+      </section>
+
+      <aside class="panel">
+        <section class="section">
+          <h2>对战模式</h2>
+          <div class="segmented" id="mode-select">
+            <button class="active" type="button" data-mode="ai">对抗电脑</button>
+            <button type="button" data-mode="local">本地双人</button>
+          </div>
+        </section>
+
+        <section class="section" id="difficulty-section">
+          <h2>电脑难度</h2>
+          <div class="difficulty" id="difficulty-select">
+            <button type="button" data-level="easy">简单</button>
+            <button class="active" type="button" data-level="medium">普通</button>
+            <button type="button" data-level="hard">困难</button>
+          </div>
+          <p class="hint" id="difficulty-hint">会权衡吃子、升变与王的安全。</p>
+        </section>
+
+        <section class="section" id="side-section">
+          <h2>玩家方位</h2>
+          <div class="segmented" id="side-select">
+            <button class="active" type="button" data-side="black">执先手</button>
+            <button type="button" data-side="white">执后手</button>
+          </div>
+        </section>
+
+        <section class="section info">
+          <h2>本局信息</h2>
+          <div class="info-row"><span>先手</span><strong id="black-name">玩家</strong></div>
+          <div class="info-row"><span>后手</span><strong id="white-name">电脑</strong></div>
+          <div class="info-row"><span>手数</span><strong id="move-count">0</strong></div>
+          <div class="history" id="history" aria-label="棋谱"><span class="empty-history">尚未行棋</span></div>
+        </section>
+
+        <section class="section actions">
+          <button class="btn primary" id="btn-new" type="button">重新开局</button>
+          <button class="btn" id="btn-undo" type="button" disabled>悔棋</button>
+        </section>
+
+        <section class="section rules">
+          <h2>玩法说明</h2>
+          <p class="hint">将对方玉将逼至无合法着法即可获胜。进入敌阵三段时可升变；吃到的棋子会成为持驹，可在己方回合打入空格。游戏会自动阻止令己方王被将军的着法。</p>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <dialog id="promotion-dialog">
+    <div class="modal">
+      <h3>是否升变？</h3>
+      <p>这枚棋子进入了升变区域。</p>
+      <div class="modal-actions">
+        <button class="btn" id="btn-no-promote" type="button">不升变</button>
+        <button class="btn primary" id="btn-promote" type="button">升变</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="result-dialog">
+    <div class="modal">
+      <span class="result-mark">詰</span>
+      <h3 id="result-title">先手获胜</h3>
+      <p id="result-text">后手已无合法着法。</p>
+      <div class="modal-actions">
+        <button class="btn" id="btn-close" type="button">查看棋盘</button>
+        <button class="btn primary" id="btn-again" type="button">再来一局</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
